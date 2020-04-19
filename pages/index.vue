@@ -1,74 +1,86 @@
 <template>
   <div class="container">
-    <div>
-      <logo />
-      <h1 class="title">chat</h1>
-      <h2 class="subtitle">
-        Chat Application by Open Marketplace Applications
-      </h2>
-      <div class="links">
-        <a href="https://nuxtjs.org/" target="_blank" class="button--green"
-          >Documentation</a
-        >
-        <a
-          href="https://github.com/nuxt/nuxt.js"
-          target="_blank"
-          class="button--grey"
-          >GitHub</a
-        >
-      </div>
-    </div>
+    <vue-command
+      :yargs-options="{ alias: { color: ['colour'] } }"
+      :commands="commands"
+      :executed.sync="executed"
+      title="Open Marketplace Applications Chat Demo"
+      prompt="~user@oma:#	"
+      help-text="send <your message>"
+      :show-help="true"
+      intro="Loading messages..."
+      :is-in-progress="loading"
+      :show-intro="loading"
+    />
   </div>
 </template>
 
 <script>
-import Logo from '~/components/Logo.vue'
+import VueCommand, { createStdout } from 'vue-command'
+import 'vue-command/dist/vue-command.css'
 
 export default {
   components: {
-    Logo
+    VueCommand
+  },
+  data() {
+    return {
+      history: [],
+      loading: true,
+      // yargs arguments
+      commands: {
+        send: (message) => {
+          console.log('send message', message)
+          console.log('send message', message._[0])
+          this.sendMessage(message._[0]).then(function(response) {
+            console.log('hmmm', response)
+          })
+          return createStdout('sending...')
+        }
+      },
+      executed: new Set()
+    }
   },
   async created() {
     console.log('index', this.$freighter)
-    const message = 'Hey IOTA! Greets from OMA'
-    const response = await this.$freighter.sendMessage(
-      'FREIGHTER9EXAMPLE',
-      message
-    )
-    console.log('response', response)
+    this.history = await this.$freighter.loadHistory()
+    this.loading = false
+    this.history.forEach((element) => {
+      createStdout(element.message)
+    })
+  },
+  methods: {
+    async sendMessage(message) {
+      const response = await this.$freighter.sendMessage(
+        'FREIGHTER9EXAMPLE',
+        message
+      )
+      console.log('response', response)
+      return response
+    }
   }
 }
 </script>
 
-<style>
+<style lang="scss">
 .container {
-  margin: 0 auto;
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
+  background-color: #000;
 }
 
-.title {
-  font-family: 'Quicksand', 'Source Sans Pro', -apple-system, BlinkMacSystemFont,
-    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  display: block;
-  font-weight: 300;
-  font-size: 100px;
-  color: #35495e;
-  letter-spacing: 1px;
-}
+.vue-command {
+  min-height: 100vh;
+  min-width: 100%;
+  .term {
+  }
 
-.subtitle {
-  font-weight: 300;
-  font-size: 42px;
-  color: #526488;
-  word-spacing: 5px;
-  padding-bottom: 15px;
-}
-
-.links {
-  padding-top: 15px;
+  .term-std {
+    height: calc(100vh - 42px);
+    overflow-y: scroll;
+  }
 }
 </style>
