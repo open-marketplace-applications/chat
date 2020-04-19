@@ -2,23 +2,20 @@
   <div class="container">
     <div>
       <logo />
-      <h1 class="title">
-        chat
-      </h1>
+      <h1 class="title">chat</h1>
       <h2 class="subtitle">
         Chat Application by Open Marketplace Applications
       </h2>
       <div class="links">
-        <a href="https://nuxtjs.org/" target="_blank" class="button--green">
-          Documentation
-        </a>
+        <a href="https://nuxtjs.org/" target="_blank" class="button--green"
+          >Documentation</a
+        >
         <a
           href="https://github.com/nuxt/nuxt.js"
           target="_blank"
           class="button--grey"
+          >GitHub</a
         >
-          GitHub
-        </a>
       </div>
     </div>
   </div>
@@ -30,6 +27,15 @@ import Logo from '~/components/Logo.vue'
 export default {
   components: {
     Logo
+  },
+  async created() {
+    console.log('index', this.$freighter)
+    const message = 'Hey IOTA! Greets from OMA'
+    const response = await this.$freighter.sendMessage(
+      'FREIGHTER9EXAMPLE',
+      message
+    )
+    console.log('response', response)
   }
 }
 </script>
